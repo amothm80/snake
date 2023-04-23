@@ -18,4 +18,5 @@ fn main() {
         "Snake",
         [to_coord_u32(width), to_coord_u32(height)],
     ).exit_on_esc(true).build().unwrap();
+    //
 }
