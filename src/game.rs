@@ -1,4 +1,4 @@
-use std::fs::DirBuilder;
+
 
 use piston_window::{Key, Context, G2d};
 use piston_window::types::Color;
@@ -25,20 +25,28 @@ pub struct Game{
     height: i32,
 
     game_over: bool,
+    score: u32,
 
     waiting_time: f64,
 }
 
 impl Game{
     pub fn new(width: i32, height:i32)->Game{
+        let mut rng = thread_rng();
+
+        let snake_x = rng.gen_range(2..width - 2);
+        let snake_y = rng.gen_range(2..height-2);
+        let food_x = rng.gen_range(2..width - 2);
+        let food_y = rng.gen_range(2..height-2);
         Game { 
-            snake: Snake::new(2,2), 
+            snake: Snake::new(snake_x,snake_y), 
             food_exists: true, 
-            food_x: 6, 
-            food_y: 4, 
+            food_x: food_x, 
+            food_y: food_y, 
             width,
             height,
             game_over: false,
+            score: 0,
             waiting_time: 0.0 }
     }
     pub fn key_pressed(&mut self, key:Key){
@@ -58,7 +66,7 @@ impl Game{
             return;
         }
 
-        //self.update_snake(dir);
+        self.update_snake(dir);
     }
 
     pub fn draw(&self, con: &Context, g: &mut G2d){
@@ -100,6 +108,7 @@ impl Game{
     fn check_eating(&mut self){
         let (head_x,head_y):(i32,i32) = self.snake.head_position();
         if self.food_exists && self.food_x == head_x && self.food_y == head_y{
+            self.score += 10;
             self.food_exists = false;
             self.snake.restore_tail();
         }
@@ -142,11 +151,18 @@ impl Game{
     }
 
     fn restart(&mut self){
-        self.snake = Snake::new(2,2);
+        let mut rng = thread_rng();
+
+        let new_x = rng.gen_range(2..self.width - 2);
+        let new_y = rng.gen_range(2..self.height-2);  
+        let food_x = rng.gen_range(2..self.width - 2);
+        let food_y = rng.gen_range(2..self.height-2);      
+        self.snake = Snake::new(new_x,new_y);
         self.waiting_time = 0.0;
         self.food_exists = true;
-        self.food_x = 6;
-        self.food_y = 4;
+        self.food_x = food_x;
+        self.food_y = food_y;
+        self.score = 0;
         self.game_over = false;
     }
 }
